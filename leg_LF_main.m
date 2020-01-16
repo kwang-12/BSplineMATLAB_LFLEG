@@ -21,12 +21,25 @@ LF.geometry.a2 = 0.218;
 LF.geometry.a3 = 0.230;
 
 % Input the desired operational space trajectory
-opTrajSettings.timeVector = 0:0.05:1;
-opTrajSettings.xVector = [0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.33, 0.318, 0.30, 0.30, 0.30, 0.318, 0.33, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35];
+opTrajSettings.timeStep = 0.05;
+opTrajSettings.iniTime = 0;
+opTrajSettings.endTime = 1;
+opTrajSettings.timeVector = opTrajSettings.iniTime : opTrajSettings.timeStep : opTrajSettings.endTime;
+% opTrajSettings.timeVector = 0:0.05:1;
+opTrajSettings.xVector = [0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.33, 0.318, 0.31, 0.31, 0.31, 0.318, 0.33, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35];
 opTrajSettings.yVector = ones(1,length(opTrajSettings.xVector))*LF.geometry.d2;
-opTrajSettings.zVector = [0.00,-0.02,-0.04,-0.06,-0.08,-0.10,-0.12,-0.15,-0.106,-0.04, 0.00, 0.04, 0.106, 0.15, 0.12, 0.10, 0.08, 0.06, 0.04, 0.02, 0.00];
-opTrajSettings.iniVelo = [0; 0; -0.02];
-opTrajSettings.endVelo = [0; 0; -0.02];
+opTrajSettings.zVector = [0.00,-0.02,-0.04,-0.06,-0.08,-0.10,-0.12,-0.13,-0.106,-0.06, 0.00, 0.06, 0.106, 0.13, 0.12, 0.10, 0.08, 0.06, 0.04, 0.02, 0.00];
+
+% opTrajSettings.xVector = [0.35,  0.35,  0.35,  0.35,  0.35,  0.35,  0.35,  0.334, 0.314, 0.2980, 0.2920,  0.290,  0.290,  0.290,  0.290, 0.2920, 0.2980, 0.314,  0.334,  0.35, 0.35, 0.35, 0.35, 0.35,  0.35, 0.35];
+% opTrajSettings.yVector = ones(1,length(opTrajSettings.xVector))*LF.geometry.d2;
+% opTrajSettings.zVector = [0.00,-0.016,-0.032,-0.048,-0.064,-0.080,-0.096,-0.1045,-0.103,-0.0882,-0.0650,-0.0390,-0.0130, 0.0130, 0.0390, 0.0650, 0.0882, 0.103, 0.1045, 0.096,0.080,0.064,0.048,0.032, 0.016, 0.00];
+
+opTrajSettings.iniVelo = [(opTrajSettings.xVector(2)-opTrajSettings.xVector(1))/opTrajSettings.timeStep];
+opTrajSettings.iniVelo = [opTrajSettings.iniVelo; (opTrajSettings.yVector(2)-opTrajSettings.yVector(1))/opTrajSettings.timeStep];
+opTrajSettings.iniVelo = [opTrajSettings.iniVelo; (opTrajSettings.zVector(2)-opTrajSettings.zVector(1))/opTrajSettings.timeStep];
+opTrajSettings.endVelo = [(opTrajSettings.xVector(end)-opTrajSettings.xVector(end-1))/opTrajSettings.timeStep];
+opTrajSettings.endVelo = [opTrajSettings.endVelo; (opTrajSettings.yVector(end)-opTrajSettings.yVector(end-1))/opTrajSettings.timeStep];
+opTrajSettings.endVelo = [opTrajSettings.endVelo; (opTrajSettings.zVector(end)-opTrajSettings.zVector(end-1))/opTrajSettings.timeStep];
 opTraj.traj = [opTrajSettings.timeVector', opTrajSettings.xVector', opTrajSettings.yVector', opTrajSettings.zVector'];
 opTraj.constraint = [opTrajSettings.iniVelo, opTrajSettings.endVelo];
 
