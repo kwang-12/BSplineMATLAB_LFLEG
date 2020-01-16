@@ -92,6 +92,27 @@ end
 % Calculate end effector velocity using BSpline joint space trajectory
 for count = 1:size(bSpline.time,2)
     opTraj.bSplineTraj(count,:) = leg_LF_jacobian([bSpline.AB.curve(count), bSpline.HIP.curve(count), bSpline.KNEE.curve(count)], LF.geometry) * [bSpline.AB.curve_velo(count), bSpline.HIP.curve_velo(count), bSpline.KNEE.curve_velo(count)]';
+    opTraj.bSplineSpeed(count) = sqrt(opTraj.bSplineTraj(count,1)^2 + opTraj.bSplineTraj(count,2)^2 + opTraj.bSplineTraj(count,3)^2);
+end
+
+opTraj.settingSpeedX = zeros(size(opTrajSettings.timeVector));
+opTraj.settingSpeedY = zeros(size(opTrajSettings.timeVector));
+opTraj.settingSpeedZ = zeros(size(opTrajSettings.timeVector));
+opTraj.settingSpeed = zeros(size(opTrajSettings.timeVector));
+opTraj.settingSpeedX(1) = opTrajSettings.iniVelo(1);
+opTraj.settingSpeedY(1) = opTrajSettings.iniVelo(2);
+opTraj.settingSpeedZ(1) = opTrajSettings.iniVelo(3);
+opTraj.settingSpeed(1) = sqrt(opTraj.settingSpeedX(1)^2 + opTraj.settingSpeedY(1)^2 +opTraj.settingSpeedZ(1)^2);
+opTraj.settingSpeedX(end) = opTrajSettings.endVelo(1);
+opTraj.settingSpeedY(end) = opTrajSettings.endVelo(2);
+opTraj.settingSpeedZ(end) = opTrajSettings.endVelo(3);
+opTraj.settingSpeed(end) = sqrt(opTraj.settingSpeedX(end)^2 + opTraj.settingSpeedY(end)^2 +opTraj.settingSpeedZ(end)^2);
+
+for count = 2:size(opTrajSettings.timeVector,2)-1
+    opTraj.settingSpeedX(count) = (opTrajSettings.xVector(count) - opTrajSettings.xVector(count-1))/(opTrajSettings.timeVector(count)-opTrajSettings.timeVector(count-1));
+    opTraj.settingSpeedY(count) = (opTrajSettings.yVector(count) - opTrajSettings.yVector(count-1))/(opTrajSettings.timeVector(count)-opTrajSettings.timeVector(count-1));
+    opTraj.settingSpeedZ(count) = (opTrajSettings.zVector(count) - opTrajSettings.zVector(count-1))/(opTrajSettings.timeVector(count)-opTrajSettings.timeVector(count-1));
+    opTraj.settingSpeed(count) = sqrt(opTraj.settingSpeedX(count)^2 + opTraj.settingSpeedY(count)^2 + opTraj.settingSpeedZ(count)^2);
 end
 %% Visualization
 figure(1)
@@ -118,19 +139,22 @@ plot(jtTraj.traj(:,1),jtTraj.traj(:,4)/pi*180, 'LineStyle', 'none', 'Marker', 'o
 plot(bSpline.time, bSpline.AB.curve/pi*180, 'LineWidth', 3, 'Color', 'r')
 plot(bSpline.time, bSpline.HIP.curve/pi*180, 'LineWidth', 3, 'Color', 'g')
 plot(bSpline.time, bSpline.KNEE.curve/pi*180, 'LineWidth', 3, 'Color', 'b')
-% plot(bSpline.U(5:end-4), bSpline.HIP.CP/pi*180)
-% plot(bSpline.U(5:end-4), bSpline.KNEE.CP/pi*180)
 legend('AB-operaPoints','HIP-operaPoints','KNEE-operaPoints', 'AB-bSpline', 'HIP-bSpline', 'KNEE-bSpline', 'Location', 'Best')
 grid on
 xlabel('time [sec]')
 ylabel('degree')
 title('jt-space traj')
 
+visual_time_ticks = findTimeTick(jtTraj.traj(:,1), bSpline.time);
+
 figure(3)
 plot(bSpline.time, bSpline.AB.curve_velo/pi*180, 'LineWidth', 3, 'Color', 'r')
 hold on
 plot(bSpline.time, bSpline.HIP.curve_velo/pi*180, 'LineWidth', 3, 'Color', 'g')
 plot(bSpline.time, bSpline.KNEE.curve_velo/pi*180, 'LineWidth', 3, 'Color', 'b')
+plot(bSpline.time(visual_time_ticks), bSpline.AB.curve_velo(visual_time_ticks)/pi*180, 'LineStyle', 'none', 'Marker', 'o', 'MarkerSize', 8, 'Color', 'r')
+plot(bSpline.time(visual_time_ticks), bSpline.HIP.curve_velo(visual_time_ticks)/pi*180, 'LineStyle', 'none', 'Marker', 'o', 'MarkerSize', 8, 'Color', 'g')
+plot(bSpline.time(visual_time_ticks), bSpline.KNEE.curve_velo(visual_time_ticks)/pi*180, 'LineStyle', 'none', 'Marker', 'o', 'MarkerSize', 8, 'Color', 'b')
 legend('AB-bSpline', 'HIP-bSpline', 'KNEE-bSpline', 'Location', 'Best')
 grid on
 xlabel('time [sec]')
@@ -142,6 +166,9 @@ plot(bSpline.time, bSpline.AB.curve_accel/pi*180, 'LineWidth', 3, 'Color', 'r')
 hold on
 plot(bSpline.time, bSpline.HIP.curve_accel/pi*180, 'LineWidth', 3, 'Color', 'g')
 plot(bSpline.time, bSpline.KNEE.curve_accel/pi*180, 'LineWidth', 3, 'Color', 'b')
+plot(bSpline.time(visual_time_ticks), bSpline.AB.curve_accel(visual_time_ticks)/pi*180, 'LineStyle', 'none', 'Marker', 'o', 'MarkerSize', 8, 'Color', 'r')
+plot(bSpline.time(visual_time_ticks), bSpline.HIP.curve_accel(visual_time_ticks)/pi*180, 'LineStyle', 'none', 'Marker', 'o', 'MarkerSize', 8, 'Color', 'g')
+plot(bSpline.time(visual_time_ticks), bSpline.KNEE.curve_accel(visual_time_ticks)/pi*180, 'LineStyle', 'none', 'Marker', 'o', 'MarkerSize', 8, 'Color', 'b')
 legend('AB-bSpline', 'HIP-bSpline', 'KNEE-bSpline', 'Location', 'Best')
 grid on
 xlabel('time [sec]')
@@ -183,6 +210,14 @@ title('joint jerk')
 figure(9)
 plot(bSpline.time, opTraj.bSplineTraj, 'LineWidth', 3)
 legend('x','y','z')
+grid on
+xlabel('time [sec]')
+ylabel('m/sec')
+
+figure(10)
+plot(bSpline.time, opTraj.bSplineSpeed, 'LineWidth', 3)
+hold on
+plot(opTrajSettings.timeVector, opTraj.settingSpeed, 'LineWidth', 3)
 grid on
 xlabel('time [sec]')
 ylabel('m/sec')
