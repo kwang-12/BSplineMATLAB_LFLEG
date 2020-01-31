@@ -234,3 +234,16 @@ plot(opTrajSettings.timeVector, opTraj.settingSpeed, 'LineWidth', 3)
 grid on
 xlabel('time [sec]')
 ylabel('m/sec')
+
+%% Transfer generated joint trajectory into useable numbers
+clear knee_pos knee_vel hip_pos hip_vel
+send_time_interval = 5;%(7000 micro-second)
+knee_offset = 0;
+knee_multiplier = 20/16;    %gear_ratio
+hip_offset = -5900;
+hip_multiplier = -1;
+knee_pos = round(knee_multiplier*(bSpline.KNEE.curve(1:send_time_interval:length(bSpline.KNEE.curve))/pi*180/360*2^14*11-knee_offset));
+knee_vel = round(knee_multiplier*bSpline.KNEE.curve_velo(1:send_time_interval:length(bSpline.KNEE.curve_velo))/pi*180/360*2^14*11);
+hip_pos = round(hip_multiplier*(bSpline.HIP.curve(1:send_time_interval:length(bSpline.HIP.curve))/pi*180/360*2^14*11-hip_offset));
+hip_vel = round(hip_multiplier*bSpline.HIP.curve_velo(1:send_time_interval:length(bSpline.HIP.curve_velo))/pi*180/360*2^14*11);
+
